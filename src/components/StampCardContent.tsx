@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Copy, Check, Gift, Users, LogOut, Mail, Phone, MapPin, Clock, UserPlus } from 'lucide-react';
-import { supabase } from '../pyyda_leimakorttilib/pyyda_leimakorttisupabase';
+import { supabase } from '../lib/supabase';
 
 interface StampCard {
   id: string;
@@ -26,8 +26,8 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   showContactInfo = false,
   onStampCardDataLoaded
 }) => {
-  /pyyda_leimakortti/pyyda_leimakortti Cache constants
-  const CACHE_DURATION = 24 * 60 * 60 * 1000; /pyyda_leimakortti/pyyda_leimakortti 24 hours in milliseconds
+  // Cache constants
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const CACHE_IDENTIFIER_KEY = 'stampcard_identifier';
   const CACHE_TIMESTAMP_KEY = 'stampcard_timestamp';
   const [copiedCode, setCopiedCode] = useState(false);
@@ -51,7 +51,7 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   const [requestSuccess, setRequestSuccess] = useState(false);
   const [requestError, setRequestError] = useState('');
 
-  const totalStamps = 10; /pyyda_leimakortti/pyyda_leimakortti Total stamps needed for free service
+  const totalStamps = 10; // Total stamps needed for free service
 
   const handleCopyCode = async () => {
     try {
@@ -66,8 +66,8 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   };
 
   const handleLookup = async (identifierToUse?: string) => {
-    setErrorMessage(''); /pyyda_leimakortti/pyyda_leimakortti Clear previous errors
-    setApiError(''); /pyyda_leimakortti/pyyda_leimakortti Clear API errors
+    setErrorMessage(''); // Clear previous errors
+    setApiError(''); // Clear API errors
     const identifier = identifierToUse || inputIdentifier.trim();
 
     if (!identifier) {
@@ -79,44 +79,44 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
     setErrorMessage('');
 
     try {
-      /pyyda_leimakortti/pyyda_leimakortti Make the query case-insensitive and handle potential null values
+      // Make the query case-insensitive and handle potential null values
       const { data, error } = await supabase
         .from('stamp_cards')
         .select('*')
         .or(`email.ilike.${identifier},referral_code.ilike.${identifier}`);
 
       if (error) {
-        /pyyda_leimakortti/pyyda_leimakortti Check if it's a network/pyyda_leimakorttiserver error vs a query error
+        // Check if it's a network/server error vs a query error
         if (error.code && (error.code === 'PGRST301' || error.code === 'PGRST116')) {
-          /pyyda_leimakortti/pyyda_leimakortti These are "not found" type errors, treat as no results
+          // These are "not found" type errors, treat as no results
           setErrorMessage('Antamallasi sähköpostiosoitteella tai suosittelukoodilla ei löytynyt leimakorttia. Tarkista syöttämäsi tiedot ja yritä uudelleen.');
         } else {
-          /pyyda_leimakortti/pyyda_leimakortti Network or server error
+          // Network or server error
           setApiError('Palvelimella tapahtui virhe leimakorttia haettaessa. Tarkista verkkoyhteytesi ja yritä uudelleen.');
         }
-        /pyyda_leimakortti/pyyda_leimakortti Clear cache on failed lookup
+        // Clear cache on failed lookup
         localStorage.removeItem(CACHE_IDENTIFIER_KEY);
         localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       } else if (!data || data.length === 0) {
         setErrorMessage('Antamallasi sähköpostiosoitteella tai suosittelukoodilla ei löytynyt leimakorttia. Tarkista syöttämäsi tiedot ja yritä uudelleen.');
-        /pyyda_leimakortti/pyyda_leimakortti Clear cache on failed lookup
+        // Clear cache on failed lookup
         localStorage.removeItem(CACHE_IDENTIFIER_KEY);
         localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       } else {
         setStampCardData(data[0]);
         setShowInputForm(false);
-        /pyyda_leimakortti/pyyda_leimakortti Notify parent component about the loaded stamp card data
+        // Notify parent component about the loaded stamp card data
         if (onStampCardDataLoaded) {
           onStampCardDataLoaded(data[0]);
         }
-        /pyyda_leimakortti/pyyda_leimakortti Cache the successful identifier and timestamp
+        // Cache the successful identifier and timestamp
         localStorage.setItem(CACHE_IDENTIFIER_KEY, identifier);
         localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
       }
     } catch (error) {
       console.error('Error looking up stamp card:', error);
       setApiError('Palvelimella tapahtui odottamaton virhe leimakorttia haettaessa. Tarkista verkkoyhteytesi ja yritä uudelleen.');
-      /pyyda_leimakortti/pyyda_leimakortti Clear cache on error
+      // Clear cache on error
       localStorage.removeItem(CACHE_IDENTIFIER_KEY);
       localStorage.removeItem(CACHE_TIMESTAMP_KEY);
     } finally {
@@ -125,7 +125,7 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   };
 
   const handleInitialSubmit = async () => {
-    setErrorMessage(''); /pyyda_leimakortti/pyyda_leimakortti Clear previous errors
+    setErrorMessage(''); // Clear previous errors
     const identifier = inputIdentifier.trim();
 
     if (!identifier) {
@@ -133,28 +133,28 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
       return;
     }
 
-    /pyyda_leimakortti/pyyda_leimakortti Check if identifier is an email
+    // Check if identifier is an email
     if (identifier.includes('@')) {
       await handleEmailVerification(identifier);
       return;
     }
 
-    /pyyda_leimakortti/pyyda_leimakortti Otherwise, it's a referral code - proceed with direct lookup
+    // Otherwise, it's a referral code - proceed with direct lookup
     await handleLookup(identifier);
   };
 
   const handleEmailVerification = async (email: string) => {
-    setErrorMessage(''); /pyyda_leimakortti/pyyda_leimakortti Clear previous errors
-    setApiError(''); /pyyda_leimakortti/pyyda_leimakortti Clear API errors
+    setErrorMessage(''); // Clear previous errors
+    setApiError(''); // Clear API errors
     setIsCodeSending(true);
     setErrorMessage('');
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/pyyda_leimakorttifunctions/pyyda_leimakorttiv1/pyyda_leimakorttisend-stampcard-verification-code`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-stampcard-verification-code`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/pyyda_leimakorttijson',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ userEmail: email }),
       });
@@ -163,23 +163,23 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
 
       if (!response.ok) {
         if (response.status >= 500) {
-          /pyyda_leimakortti/pyyda_leimakortti Server error
+          // Server error
           setApiError('Vahvistuskoodin lähettäminen epäonnistui palvelimella. Tarkista verkkoyhteytesi ja yritä uudelleen.');
         } else {
-          /pyyda_leimakortti/pyyda_leimakortti Client error (400-499)
+          // Client error (400-499)
           setErrorMessage(result.error || 'Vahvistuskoodin lähettäminen epäonnistui. Tarkista sähköpostiosoitteesi ja verkkoyhteytesi.');
         }
         return;
       }
 
-      /pyyda_leimakortti/pyyda_leimakortti Success - move to verification code input
+      // Success - move to verification code input
       setEmailForVerification(email);
       setIsEmailInputMode(false);
       setIsVerificationCodeInputMode(true);
       setErrorMessage('');
       
     } catch (error) {
-      console.error('Error sending verification code:', error); /pyyda_leimakortti/pyyda_leimakortti Log the actual error for debugging
+      console.error('Error sending verification code:', error); // Log the actual error for debugging
       setApiError('Vahvistuskoodin lähettäminen epäonnistui odottamattoman virheen vuoksi. Tarkista verkkoyhteytesi ja yritä uudelleen.');
     } finally {
       setIsCodeSending(false);
@@ -187,8 +187,8 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   };
 
   const handleVerifyCode = async () => {
-    setVerificationError(''); /pyyda_leimakortti/pyyda_leimakortti Clear previous errors
-    setApiError(''); /pyyda_leimakortti/pyyda_leimakortti Clear API errors
+    setVerificationError(''); // Clear previous errors
+    setApiError(''); // Clear API errors
     if (!verificationCode.trim()) {
       setVerificationError('Syötä vahvistuskoodi');
       return;
@@ -198,11 +198,11 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
     setVerificationError('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/pyyda_leimakorttifunctions/pyyda_leimakorttiv1/pyyda_leimakorttiverify-stampcard-code`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-stampcard-code`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/pyyda_leimakorttijson',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
           userEmail: emailForVerification, 
@@ -214,22 +214,22 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
 
       if (!response.ok) {
         if (response.status >= 500) {
-          /pyyda_leimakortti/pyyda_leimakortti Server error
+          // Server error
           setApiError('Vahvistuskoodin vahvistaminen epäonnistui palvelimella. Tarkista verkkoyhteytesi ja yritä uudelleen.');
         } else {
-          /pyyda_leimakortti/pyyda_leimakortti Client error (400-499)
+          // Client error (400-499)
           setVerificationError(result.error || 'Virheellinen tai vanhentunut vahvistuskoodi. Pyydä uusi koodi tai tarkista syöttämäsi tiedot.');
         }
         return;
       }
 
-      /pyyda_leimakortti/pyyda_leimakortti Success - now fetch the actual stamp card data
+      // Success - now fetch the actual stamp card data
       setIsVerificationCodeInputMode(false);
       await handleLookup(emailForVerification);
       
       
     } catch (error) {
-      console.error('Error verifying code:', error); /pyyda_leimakortti/pyyda_leimakortti Log the actual error for debugging
+      console.error('Error verifying code:', error); // Log the actual error for debugging
       setApiError('Vahvistuskoodin vahvistaminen epäonnistui odottamattoman virheen vuoksi. Tarkista verkkoyhteytesi ja yritä uudelleen.');
     } finally {
       setIsCodeVerifying(false);
@@ -245,14 +245,14 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   const handleSubmitRequest = async () => {
     setRequestError('');
 
-    /pyyda_leimakortti/pyyda_leimakortti Validate input
+    // Validate input
     if (!requestName.trim() || !requestEmail.trim()) {
       setRequestError('Nimi ja sähköpostiosoite ovat pakollisia');
       return;
     }
 
-    /pyyda_leimakortti/pyyda_leimakortti Validate email format
-    const emailRegex = /pyyda_leimakortti^[^\s@]+@[^\s@]+\.[^\s@]+$/pyyda_leimakortti;
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(requestEmail)) {
       setRequestError('Virheellinen sähköpostiosoite');
       return;
@@ -261,11 +261,11 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
     setIsSubmittingRequest(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/pyyda_leimakorttifunctions/pyyda_leimakorttiv1/pyyda_leimakorttisubmit-stampcard-request`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-stampcard-request`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/pyyda_leimakorttijson',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: requestName.trim(),
@@ -284,12 +284,12 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
         return;
       }
 
-      /pyyda_leimakortti/pyyda_leimakortti Send confirmation email — fire and forget
-      fetch(`${import.meta.env.VITE_SUPABASE_URL}/pyyda_leimakorttifunctions/pyyda_leimakorttiv1/pyyda_leimakorttisend-stampcard-accepted`, {
+      // Send confirmation email — fire and forget
+      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-stampcard-accepted`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/pyyda_leimakorttijson',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: requestName.trim(),
@@ -297,12 +297,12 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
         }),
       }).catch((err) => console.error('Failed to send stampcard accepted email:', err));
 
-      /pyyda_leimakortti/pyyda_leimakortti Success
+      // Success
       setRequestSuccess(true);
       setRequestName('');
       setRequestEmail('');
 
-      /pyyda_leimakortti/pyyda_leimakortti Track stamp card request submission
+      // Track stamp card request submission
       if (typeof gtag !== 'undefined') {
         gtag('event', 'stamp_card_request', {
           event_category: 'engagement',
@@ -357,26 +357,26 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
   };
 
   const handleLogout = () => {
-    /pyyda_leimakortti/pyyda_leimakortti Clear cache
+    // Clear cache
     localStorage.removeItem(CACHE_IDENTIFIER_KEY);
     localStorage.removeItem(CACHE_TIMESTAMP_KEY);
     
-    /pyyda_leimakortti/pyyda_leimakortti Notify parent component that stamp card data is cleared
+    // Notify parent component that stamp card data is cleared
     if (onStampCardDataLoaded) {
       onStampCardDataLoaded(null);
     }
     
-    /pyyda_leimakortti/pyyda_leimakortti Reset component state
+    // Reset component state
     resetToInitialState();
     setCopiedCode(false);
     
-    /pyyda_leimakortti/pyyda_leimakortti Call onReset if provided
+    // Call onReset if provided
     if (onReset) {
       onReset();
     }
   };
 
-  /pyyda_leimakortti/pyyda_leimakortti Check for cached identifier when component mounts
+  // Check for cached identifier when component mounts
   useEffect(() => {
     const cachedIdentifier = localStorage.getItem(CACHE_IDENTIFIER_KEY);
     const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
@@ -385,64 +385,64 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
       const timestamp = parseInt(cachedTimestamp);
       const now = Date.now();
       
-      /pyyda_leimakortti/pyyda_leimakortti Check if cache is still valid (within 24 hours)
+      // Check if cache is still valid (within 24 hours)
       if (now - timestamp < CACHE_DURATION) {
-        /pyyda_leimakortti/pyyda_leimakortti For cached identifiers, proceed with direct lookup (already verified)
+        // For cached identifiers, proceed with direct lookup (already verified)
         setInputIdentifier(cachedIdentifier);
         setShowInputForm(false);
-        handleLookup(cachedIdentifier); /pyyda_leimakortti/pyyda_leimakortti This will trigger onStampCardDataLoaded when data is fetched
+        handleLookup(cachedIdentifier); // This will trigger onStampCardDataLoaded when data is fetched
         return;
       } else {
-        /pyyda_leimakortti/pyyda_leimakortti Cache expired, remove it
+        // Cache expired, remove it
         localStorage.removeItem(CACHE_IDENTIFIER_KEY);
         localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       }
     }
     
-    /pyyda_leimakortti/pyyda_leimakortti No valid cache found, reset to initial state
+    // No valid cache found, reset to initial state
     resetToInitialState();
     
-    /pyyda_leimakortti/pyyda_leimakortti Notify parent that no stamp card is loaded
+    // Notify parent that no stamp card is loaded
     if (onStampCardDataLoaded) {
       onStampCardDataLoaded(null);
     }
-    /pyyda_leimakortti/pyyda_leimakortti eslint-disable-next-line react-hooks/pyyda_leimakorttiexhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="space-y-8">
-      {/pyyda_leimakortti* Global API Error Display */pyyda_leimakortti}
+      {/* Global API Error Display */}
       {apiError && (
         <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-              <span className="text-white font-bold text-sm">!</pyyda_leimakorttispan>
-            </pyyda_leimakorttidiv>
+              <span className="text-white font-bold text-sm">!</span>
+            </div>
             <div>
-              <h4 className="font-bold text-red-800 mb-1">Yhteysvirhe</pyyda_leimakorttih4>
-              <p className="text-red-700 text-sm">{apiError}</pyyda_leimakorttip>
-            </pyyda_leimakorttidiv>
-          </pyyda_leimakorttidiv>
+              <h4 className="font-bold text-red-800 mb-1">Yhteysvirhe</h4>
+              <p className="text-red-700 text-sm">{apiError}</p>
+            </div>
+          </div>
           <button
             onClick={() => setApiError('')}
             className="mt-3 text-red-600 hover:text-red-800 text-sm font-medium transition-colors"
           >
             Sulje ilmoitus
-          </pyyda_leimakorttibutton>
-        </pyyda_leimakorttidiv>
+          </button>
+        </div>
       )}
 
       {showInputForm ? (
-        /pyyda_leimakortti* Input Form */pyyda_leimakortti
+        /* Input Form */
         <div className="max-w-md mx-auto">
           {!isRequestMode && (
             <div className="text-center mb-8">
               <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gift className="w-10 h-10 text-white" /pyyda_leimakortti>
-              </pyyda_leimakorttidiv>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Käytä leimakorttiasi</pyyda_leimakorttih3>
-              <p className="text-gray-600">Syötä sähköpostiosoitteesi tai suosittelukoodisi nähdäksesi leimakorttisi tiedot</pyyda_leimakorttip>
-            </pyyda_leimakorttidiv>
+                <Gift className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Käytä leimakorttiasi</h3>
+              <p className="text-gray-600">Syötä sähköpostiosoitteesi tai suosittelukoodisi nähdäksesi leimakorttisi tiedot</p>
+            </div>
           )}
 
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
@@ -451,7 +451,7 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                 <div>
                   <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-2">
                     Sähköposti tai suosittelukoodi
-                  </pyyda_leimakorttilabel>
+                  </label>
                   <input
                     id="identifier"
                     type="text"
@@ -465,13 +465,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                     placeholder="Syötä sähköpostiosoitteesi tai suosittelukoodisi"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors"
                     disabled={isLoading || isCodeSending}
-                  /pyyda_leimakortti>
-                </pyyda_leimakorttidiv>
+                  />
+                </div>
 
                 {errorMessage && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <p className="text-red-700 text-sm">{errorMessage}</pyyda_leimakorttip>
-                  </pyyda_leimakorttidiv>
+                    <p className="text-red-700 text-sm">{errorMessage}</p>
+                  </div>
                 )}
 
                 <button
@@ -485,13 +485,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                 >
                   {isLoading || isCodeSending ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></pyyda_leimakorttidiv>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       {isCodeSending ? 'Lähetetään koodia...' : 'Ladataan...'}
-                    </pyyda_leimakorttidiv>
+                    </div>
                   ) : (
                     'Avaa leimakortti'
                   )}
-                </pyyda_leimakorttibutton>
+                </button>
 
                 <div className="text-center pt-2">
                   <button
@@ -499,9 +499,9 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                     className="text-yellow-600 hover:text-yellow-700 text-sm font-medium transition-colors underline"
                   >
                     Eikö sinulla ole leimakorttia? Pyydä täältä
-                  </pyyda_leimakorttibutton>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
+                  </button>
+                </div>
+              </div>
             )}
 
             {isRequestMode && (
@@ -510,30 +510,30 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                   <>
                     <div className="text-center mb-4">
                       <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                      <UserPlus className="w-8 h-8 text-white" /pyyda_leimakortti>
-                      </pyyda_leimakorttidiv>
-                      <h4 className="text-lg font-bold text-gray-900 mb-2">Pyydä leimakortti</pyyda_leimakorttih4>
+                                      <UserPlus className="w-8 h-8 text-white" />
+                      </div>
+                      <h4 className="text-lg font-bold text-gray-900 mb-2">Pyydä leimakortti</h4>
                       <p className="text-gray-600 text-sm">
                         Täytä tietosi ja otamme sinuun yhteyttä luodaksemme leimakortin
-                      </pyyda_leimakorttip>
-                    </pyyda_leimakorttidiv>
+                      </p>
+                    </div>
 
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                       <p className="text-blue-800 text-sm text-center mb-2">
                         Haluatko tietää lisää leimakortista ennen pyyntöä?
-                      </pyyda_leimakorttip>
+                      </p>
                       <a
-                        href="/pyyda_leimakorttipyyda_leimakortti"
+                        href="/pyydä_leimakortti"
                         className="block text-center text-blue-600 hover:text-blue-700 font-medium text-sm underline transition-colors"
                       >
                         Lue lisää leimakortista ja sen eduista →
-                      </pyyda_leimakorttia>
-                    </pyyda_leimakorttidiv>
+                      </a>
+                    </div>
 
                     <div>
                       <label htmlFor="requestName" className="block text-sm font-medium text-gray-700 mb-2">
                         Nimi
-                      </pyyda_leimakorttilabel>
+                      </label>
                       <input
                         id="requestName"
                         type="text"
@@ -542,13 +542,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                         placeholder="Syötä nimesi"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors"
                         disabled={isSubmittingRequest}
-                      /pyyda_leimakortti>
-                    </pyyda_leimakorttidiv>
+                      />
+                    </div>
 
                     <div>
                       <label htmlFor="requestEmail" className="block text-sm font-medium text-gray-700 mb-2">
                         Sähköpostiosoite
-                      </pyyda_leimakorttilabel>
+                      </label>
                       <input
                         id="requestEmail"
                         type="email"
@@ -562,13 +562,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                         placeholder="Syötä sähköpostiosoitteesi"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors"
                         disabled={isSubmittingRequest}
-                      /pyyda_leimakortti>
-                    </pyyda_leimakorttidiv>
+                      />
+                    </div>
 
                     {requestError && (
                       <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <p className="text-red-700 text-sm">{requestError}</pyyda_leimakorttip>
-                      </pyyda_leimakorttidiv>
+                        <p className="text-red-700 text-sm">{requestError}</p>
+                      </div>
                     )}
 
                     <button
@@ -582,13 +582,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                     >
                       {isSubmittingRequest ? (
                         <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></pyyda_leimakorttidiv>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                           Lähetetään...
-                        </pyyda_leimakorttidiv>
+                        </div>
                       ) : (
                         'Lähetä pyyntö'
                       )}
-                    </pyyda_leimakorttibutton>
+                    </button>
 
                     <div className="text-center">
                       <button
@@ -596,46 +596,46 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                         className="text-gray-500 hover:text-gray-600 text-sm transition-colors"
                       >
                         ← Takaisin
-                      </pyyda_leimakorttibutton>
-                    </pyyda_leimakorttidiv>
-                  </pyyda_leimakortti>
+                      </button>
+                    </div>
+                  </>
                 ) : (
                   <div className="text-center py-6">
                     <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Check className="w-8 h-8 text-white" /pyyda_leimakortti>
-                    </pyyda_leimakorttidiv>
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">Pyyntö lähetetty!</pyyda_leimakorttih4>
+                      <Check className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">Pyyntö lähetetty!</h4>
                     <p className="text-gray-600 mb-6">
                       Kiitos! Olemme vastaanottaneet pyyntösi. Otamme sinuun yhteyttä pian luodaksemme leimakortin.
-                    </pyyda_leimakorttip>
+                    </p>
                     <button
                       onClick={handleBackFromRequest}
                       className="bg-yellow-500 text-black px-6 py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors"
                     >
                       Sulje
-                    </pyyda_leimakorttibutton>
-                  </pyyda_leimakorttidiv>
+                    </button>
+                  </div>
                 )}
-              </pyyda_leimakorttidiv>
+              </div>
             )}
 
             {isVerificationCodeInputMode && (
               <div className="space-y-4">
                 <div className="text-center mb-4">
                   <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Mail className="w-8 h-8 text-white" /pyyda_leimakortti>
-                  </pyyda_leimakorttidiv>
-                  <h4 className="text-lg font-bold text-gray-900 mb-2">Tarkista sähköpostisi</pyyda_leimakorttih4>
+                    <Mail className="w-8 h-8 text-white" />
+                  </div>
+                  <h4 className="text-lg font-bold text-gray-900 mb-2">Tarkista sähköpostisi</h4>
                   <p className="text-gray-600 text-sm">
                     Lähetimme 6-numeroisen vahvistuskoodin osoitteeseen:
-                  </pyyda_leimakorttip>
-                  <p className="font-medium text-gray-900">{emailForVerification}</pyyda_leimakorttip>
-                </pyyda_leimakorttidiv>
+                  </p>
+                  <p className="font-medium text-gray-900">{emailForVerification}</p>
+                </div>
 
                 <div>
                   <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-2">
                     Vahvistuskoodi
-                  </pyyda_leimakorttilabel>
+                  </label>
                   <input
                     id="verificationCode"
                     type="text"
@@ -650,13 +650,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-colors text-center text-lg font-mono"
                     disabled={isCodeVerifying}
                     maxLength={6}
-                  /pyyda_leimakortti>
-                </pyyda_leimakorttidiv>
+                  />
+                </div>
 
                 {verificationError && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <p className="text-red-700 text-sm">{verificationError}</pyyda_leimakorttip>
-                  </pyyda_leimakorttidiv>
+                    <p className="text-red-700 text-sm">{verificationError}</p>
+                  </div>
                 )}
 
                 <button
@@ -670,13 +670,13 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                 >
                   {isCodeVerifying ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></pyyda_leimakorttidiv>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       Vahvistetaan...
-                    </pyyda_leimakorttidiv>
+                    </div>
                   ) : (
                     'Vahvista koodi'
                   )}
-                </pyyda_leimakorttibutton>
+                </button>
 
                 <div className="text-center">
                   <button
@@ -685,8 +685,8 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                     className="text-yellow-600 hover:text-yellow-700 text-sm font-medium transition-colors disabled:opacity-50"
                   >
                     {isCodeSending ? 'Lähetetään...' : 'Lähetä koodi uudelleen'}
-                  </pyyda_leimakorttibutton>
-                </pyyda_leimakorttidiv>
+                  </button>
+                </div>
 
                 <div className="text-center">
                   <button
@@ -700,45 +700,45 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                     className="text-gray-500 hover:text-gray-600 text-sm transition-colors"
                   >
                     ← Takaisin
-                  </pyyda_leimakorttibutton>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
+                  </button>
+                </div>
+              </div>
             )}
-          </pyyda_leimakorttidiv>
-        </pyyda_leimakorttidiv>
+          </div>
+        </div>
       ) : (
-        /pyyda_leimakortti* Stamp Card Display */pyyda_leimakortti
+        /* Stamp Card Display */
         <>
-          {/pyyda_leimakortti* Logout Button */pyyda_leimakortti}
+          {/* Logout Button */}
           <div className="text-center mb-6">
             <button
               onClick={handleLogout}
               className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-yellow-600 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-black rounded-lg transition-colors"
             >
-              <LogOut className="w-4 h-4 mr-2" /pyyda_leimakortti>
+              <LogOut className="w-4 h-4 mr-2" />
               Kirjaudu ulos
-            </pyyda_leimakorttibutton>
-          </pyyda_leimakorttidiv>
+            </button>
+          </div>
 
-          {/pyyda_leimakortti* Stamp Card Section */pyyda_leimakortti}
+          {/* Stamp Card Section */}
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <Gift className="w-8 h-8 text-yellow-600" /pyyda_leimakortti>
+                <Gift className="w-8 h-8 text-yellow-600" />
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Leimakorttisi</pyyda_leimakorttih3>
-                  <p className="text-gray-600">Kerää 10 leimaa ja saat ilmaisen hiustenleikkauksen!</pyyda_leimakorttip>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
+                  <h3 className="text-xl font-bold text-gray-900">Leimakorttisi</h3>
+                  <p className="text-gray-600">Kerää 10 leimaa ja saat ilmaisen hiustenleikkauksen!</p>
+                </div>
+              </div>
               <div className="text-right">
                 <div className="text-xl sm:text-3xl font-bold text-yellow-600">
-                  {stampCardData?.stamps || 0}/pyyda_leimakortti{totalStamps}
-                </pyyda_leimakorttidiv>
-                <div className="text-sm text-gray-600">leimaa</pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
-            </pyyda_leimakorttidiv>
+                  {stampCardData?.stamps || 0}/{totalStamps}
+                </div>
+                <div className="text-sm text-gray-600">leimaa</div>
+              </div>
+            </div>
 
-            {/pyyda_leimakortti* Stamp Grid */pyyda_leimakortti}
+            {/* Stamp Grid */}
             <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-4">
               {Array.from({ length: totalStamps }, (_, index) => (
                 <div
@@ -752,41 +752,41 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                   }`}
                 >
                   {index < (stampCardData?.stamps || 0) ? (
-                    <Check className="w-6 h-6" /pyyda_leimakortti>
+                    <Check className="w-6 h-6" />
                   ) : index === totalStamps - 1 ? (
-                    <span className="text-xs lg:text-sm leading-tight">FREE</pyyda_leimakorttispan>
+                    <span className="text-xs lg:text-sm leading-tight">FREE</span>
                   ) : (
                     index + 1
                   )}
-                </pyyda_leimakorttidiv>
+                </div>
               ))}
-            </pyyda_leimakorttidiv>
+            </div>
 
             <div className="bg-white rounded-lg p-4">
               <p className="text-sm text-gray-700">
-                <strong>Vielä {totalStamps - (stampCardData?.stamps || 0)} leimaa</pyyda_leimakorttistrong> ilmaiseen hiustenleikkaukseen! 
+                <strong>Vielä {totalStamps - (stampCardData?.stamps || 0)} leimaa</strong> ilmaiseen hiustenleikkaukseen! 
                 Saat leiman jokaisen hiustenleikkauksen yhteydessä.
-              </pyyda_leimakorttip>
-            </pyyda_leimakorttidiv>
-          </pyyda_leimakorttidiv>
+              </p>
+            </div>
+          </div>
 
-          {/pyyda_leimakortti* Referral Program Section */pyyda_leimakortti}
+          {/* Referral Program Section */}
           <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6">
             <div className="flex items-center space-x-3 mb-6">
-              <Users className="w-8 h-8 text-yellow-600" /pyyda_leimakortti>
+              <Users className="w-8 h-8 text-yellow-600" />
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Suosittele ystävää - Saat palkkion!</pyyda_leimakorttih3>
-                <p className="text-gray-600">Jaa koodisi ja saatte molemmat 5€ alennuksen</pyyda_leimakorttip>
-              </pyyda_leimakorttidiv>
-            </pyyda_leimakorttidiv>
+                <h3 className="text-xl font-bold text-gray-900">Suosittele ystävää - Saat palkkion!</h3>
+                <p className="text-gray-600">Jaa koodisi ja saatte molemmat 5€ alennuksen</p>
+              </div>
+            </div>
 
             <div className="bg-white rounded-xl p-6 mb-4">
               <div className="text-center mb-4">
-                <h4 className="text-lg font-bold text-gray-900 mb-2">Sinun koodisi</pyyda_leimakorttih4>
+                <h4 className="text-lg font-bold text-gray-900 mb-2">Sinun koodisi</h4>
                 <div className="bg-gray-100 rounded-lg p-4 mb-4">
                   <div className="text-lg sm:text-2xl font-bold text-yellow-600 mb-2 break-all">
                     {stampCardData?.referral_code || ''}
-                  </pyyda_leimakorttidiv>
+                  </div>
                   <button
                     onClick={handleCopyCode}
                     className={`inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
@@ -797,108 +797,108 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                   >
                     {copiedCode ? (
                       <>
-                        <Check className="w-4 h-4 mr-2" /pyyda_leimakortti>
+                        <Check className="w-4 h-4 mr-2" />
                         Kopioitu!
-                      </pyyda_leimakortti>
+                      </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 mr-2" /pyyda_leimakortti>
+                        <Copy className="w-4 h-4 mr-2" />
                         Kopioi koodi
-                      </pyyda_leimakortti>
+                      </>
                     )}
-                  </pyyda_leimakorttibutton>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
+                  </button>
+                </div>
+              </div>
 
               <div className="border-t border-gray-200 pt-4">
-                <h5 className="font-bold text-gray-900 mb-2">Näin se toimii:</pyyda_leimakorttih5>
+                <h5 className="font-bold text-gray-900 mb-2">Näin se toimii:</h5>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p>1. <strong>Ystävä näyttää kuvan koodista</pyyda_leimakorttistrong> - hän saa 5€ alennusta</pyyda_leimakorttip>
-                  <p>2. <strong>Sinä saat 5€ alennusta</pyyda_leimakorttistrong> ensi käynnistä</pyyda_leimakorttip>
-                  <p>3. Molemmat hyödytte!</pyyda_leimakorttip>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
-            </pyyda_leimakorttidiv>
+                  <p>1. <strong>Ystävä näyttää kuvan koodista</strong> - hän saa 5€ alennusta</p>
+                  <p>2. <strong>Sinä saat 5€ alennusta</strong> ensi käynnistä</p>
+                  <p>3. Molemmat hyödytte!</p>
+                </div>
+              </div>
+            </div>
 
-            {/pyyda_leimakortti* Available Discount Display */pyyda_leimakortti}
+            {/* Available Discount Display */}
             <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-4">
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white font-bold text-2xl">€</pyyda_leimakorttispan>
-                </pyyda_leimakorttidiv>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">Käytettävissä oleva alennus</pyyda_leimakorttih4>
+                  <span className="text-white font-bold text-2xl">€</span>
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Käytettävissä oleva alennus</h4>
                 <div className="text-4xl font-bold text-green-600 mb-2">
                   {(stampCardData?.referral_count || 0) * 5}€
-                </pyyda_leimakorttidiv>
+                </div>
                 <p className="text-sm text-gray-600">
                   Voit käyttää tämän alennuksen seuraavassa hiustenleikkauksessasi
-                </pyyda_leimakorttip>
-              </pyyda_leimakorttidiv>
-            </pyyda_leimakorttidiv>
+                </p>
+              </div>
+            </div>
 
             {(stampCardData?.referral_count || 0) > 0 && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-center space-x-2">
-                  <Check className="w-5 h-5 text-green-500" /pyyda_leimakortti>
+                  <Check className="w-5 h-5 text-green-500" />
                   <span className="text-green-700 font-medium">
                     Olet suositellut meitä {stampCardData?.referral_count} ystävälle! Kiitos! 🎉
-                  </pyyda_leimakorttispan>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
+                  </span>
+                </div>
+              </div>
             )}
-          </pyyda_leimakorttidiv>
+          </div>
 
-          {/pyyda_leimakortti* Contact Information - Only show if showContactInfo is true */pyyda_leimakortti}
+          {/* Contact Information - Only show if showContactInfo is true */}
           {showContactInfo && (
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Phone className="w-6 h-6 mr-2 text-orange-500" /pyyda_leimakortti>
+                  <Phone className="w-6 h-6 mr-2 text-orange-500" />
                   Yhteystiedot
-                </pyyda_leimakorttih3>
+                </h3>
                 <div className="space-y-3">
                   <a href="tel:+358456131884" className="flex items-center text-gray-700 hover:text-yellow-600 transition-colors">
-                    <Phone className="w-4 h-4 mr-3 text-yellow-500" /pyyda_leimakortti>
+                    <Phone className="w-4 h-4 mr-3 text-yellow-500" />
                     +358 45 6131884
-                  </pyyda_leimakorttia>
+                  </a>
                   <div className="flex items-center text-gray-700">
-                    <MapPin className="w-4 h-4 mr-3 text-yellow-500" /pyyda_leimakortti>
+                    <MapPin className="w-4 h-4 mr-3 text-yellow-500" />
                     <div>
-                      <div>Humalistonkatu 7 A</pyyda_leimakorttidiv>
-                      <div className="text-sm text-gray-500">Turku 20100</pyyda_leimakorttidiv>
-                    </pyyda_leimakorttidiv>
-                  </pyyda_leimakorttidiv>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
+                      <div>Humalistonkatu 7 A</div>
+                      <div className="text-sm text-gray-500">Turku 20100</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Clock className="w-6 h-6 mr-2 text-yellow-500" /pyyda_leimakortti>
+                  <Clock className="w-6 h-6 mr-2 text-yellow-500" />
                   Aukioloajat
-                </pyyda_leimakorttih3>
+                </h3>
                 <div className="space-y-2 text-gray-700">
                   <div className="flex justify-between">
-                    <span>Maanantai - Perjantai</pyyda_leimakorttispan>
-                    <span className="font-medium">10:00 - 19:00</pyyda_leimakorttispan>
-                  </pyyda_leimakorttidiv>
+                    <span>Maanantai - Perjantai</span>
+                    <span className="font-medium">10:00 - 19:00</span>
+                  </div>
                   <div className="flex justify-between">
-                    <span>Lauantai</pyyda_leimakorttispan>
-                    <span className="font-medium">10:00 - 19:00</pyyda_leimakorttispan>
-                  </pyyda_leimakorttidiv>
+                    <span>Lauantai</span>
+                    <span className="font-medium">10:00 - 19:00</span>
+                  </div>
                   <div className="flex justify-between">
-                    <span>Sunnuntai</pyyda_leimakorttispan>
-                    <span className="font-medium text-red-500">Suljettu</pyyda_leimakorttispan>
-                  </pyyda_leimakorttidiv>
-                </pyyda_leimakorttidiv>
-              </pyyda_leimakorttidiv>
-            </pyyda_leimakorttidiv>
+                    <span>Sunnuntai</span>
+                    <span className="font-medium text-red-500">Suljettu</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
-          {/pyyda_leimakortti* Call to Action */pyyda_leimakortti}
+          {/* Call to Action */}
           {onOpenBooking && (
             <div className="bg-yellow-500 text-black rounded-2xl p-6 text-center">
-              <h3 className="text-xl font-bold mb-2">Valmis seuraavaan käyntiin?</pyyda_leimakorttih3>
-              <p className="mb-4 opacity-90">Varaa aikasi helposti verkossa tai tervetuloa myös ilman ajanvarausta.</pyyda_leimakorttip>
+              <h3 className="text-xl font-bold mb-2">Valmis seuraavaan käyntiin?</h3>
+              <p className="mb-4 opacity-90">Varaa aikasi helposti verkossa tai tervetuloa myös ilman ajanvarausta.</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   className="bg-black text-yellow-400 px-6 py-3 rounded-lg font-bold hover:bg-gray-900 transition-colors"
@@ -914,7 +914,7 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                   }}
                 >
                   Varaa aika
-                </pyyda_leimakorttibutton>
+                </button>
                 <a
                   href="tel:+358407736334"
                   className="border-2 border-black px-6 py-3 rounded-lg font-bold hover:bg-black hover:text-yellow-400 transition-colors"
@@ -929,15 +929,14 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                   }}
                 >
                   Soita nyt
-                </pyyda_leimakorttia>
-              </pyyda_leimakorttidiv>
-            </pyyda_leimakorttidiv>
+                </a>
+              </div>
+            </div>
           )}
-        </pyyda_leimakortti>
+        </>
       )}
-    </pyyda_leimakorttidiv>
+    </div>
   );
 };
 
 export default StampCardContent;
-

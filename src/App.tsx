@@ -1,16 +1,16 @@
-﻿import React from 'react';
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Ticket } from 'lucide-react';
-import EmbeddedBooking from './pyyda_leimakortticomponents/pyyda_leimakorttibooking/pyyda_leimakorttiEmbeddedBooking';
-import StampCardModal from './pyyda_leimakortticomponents/pyyda_leimakorttiStampCardModal';
-import HolidayBar from './pyyda_leimakortticomponents/pyyda_leimakorttiHolidayBar';
-import { HolidayBarProvider, useHolidayBar } from './pyyda_leimakortticontext/pyyda_leimakorttiHolidayBarContext';
-import HomePage from './pyyda_leimakorttipages/pyyda_leimakorttiHomePage';
-import QRcodePage from './pyyda_leimakorttipages/pyyda_leimakorttiQRcodePage';
-import BookingStandAlone from './pyyda_leimakorttipages/pyyda_leimakorttiBookingStandAlone';
-import NotFoundPage from './pyyda_leimakorttipages/pyyda_leimakorttiNotFoundPage';
-import RequestStampCardStandAlone from './pyyda_leimakorttipages/pyyda_leimakorttiRequestStampCardStandAlone';
+import EmbeddedBooking from './components/booking/EmbeddedBooking';
+import StampCardModal from './components/StampCardModal';
+import HolidayBar from './components/HolidayBar';
+import { HolidayBarProvider, useHolidayBar } from './context/HolidayBarContext';
+import HomePage from './pages/HomePage';
+import QRcodePage from './pages/QRcodePage';
+import BookingStandAlone from './pages/BookingStandAlone';
+import NotFoundPage from './pages/NotFoundPage';
+import RequestStampCardStandAlone from './pages/RequestStampCardStandAlone';
 
 function AppContent() {
   const location = useLocation();
@@ -30,7 +30,7 @@ function AppContent() {
     setOpenedBookingFromStampCard(false);
   };
 
-  /pyyda_leimakortti/pyyda_leimakortti Prevent body scroll when stamp card modal is open
+  // Prevent body scroll when stamp card modal is open
   useEffect(() => {
     if (isStampCardOpen) {
       const scrollY = window.scrollY;
@@ -56,57 +56,57 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
-      <HolidayBar /pyyda_leimakortti>
+      <HolidayBar />
 
-      {/pyyda_leimakortti* Sticky Stamp Card Button - Hidden on Request Stamp Card page */pyyda_leimakortti}
-      {location.pathname !== '/pyyda_leimakorttipyyda_leimakortti' && (
+      {/* Sticky Stamp Card Button - Hidden on Request Stamp Card page */}
+      {location.pathname !== '/pyydä_leimakortti' && (
         <button
           onClick={() => setIsStampCardOpen(true)}
           className={`fixed right-3 sm:right-4 z-50 bg-yellow-500 text-black px-4 py-3 sm:px-4 sm:py-2 rounded-lg shadow-lg hover:bg-yellow-400 transition-all duration-300 flex items-center space-x-2 font-bold text-sm sm:text-sm border border-yellow-600 ${
             isHolidayBarVisible ? 'top-11 sm:top-12' : 'top-3 sm:top-4'
           }`}
         >
-          <Ticket className="w-4 h-4 sm:w-4 sm:h-4" /pyyda_leimakortti>
-          <span>Leimakortti</pyyda_leimakorttispan>
-        </pyyda_leimakorttibutton>
+          <Ticket className="w-4 h-4 sm:w-4 sm:h-4" />
+          <span>Leimakortti</span>
+        </button>
       )}
 
-      {/pyyda_leimakortti* Routes */pyyda_leimakortti}
+      {/* Routes */}
       <Routes>
         <Route
-          path="/pyyda_leimakortti"
-          element={<HomePage onOpenBooking={() => setIsBookingOpen(true)} /pyyda_leimakortti>}
-        /pyyda_leimakortti>
+          path="/"
+          element={<HomePage onOpenBooking={() => setIsBookingOpen(true)} />}
+        />
         <Route
-          path="/pyyda_leimakorttiqrcode"
-          element={<QRcodePage onOpenBooking={() => setIsBookingOpen(true)} /pyyda_leimakortti>}
-        /pyyda_leimakortti>
+          path="/qrcode"
+          element={<QRcodePage onOpenBooking={() => setIsBookingOpen(true)} />}
+        />
         <Route
-          path="/pyyda_leimakorttivaraukset"
-          element={<BookingStandAlone onOpenBooking={() => setIsBookingOpen(true)} /pyyda_leimakortti>}
-        /pyyda_leimakortti>
+          path="/varaukset"
+          element={<BookingStandAlone onOpenBooking={() => setIsBookingOpen(true)} />}
+        />
         <Route
-          path="/pyyda_leimakorttipyyda_leimakortti"
-          element={<RequestStampCardStandAlone onOpenBooking={() => setIsBookingOpen(true)} /pyyda_leimakortti>}
-        /pyyda_leimakortti>
+          path="/pyydä_leimakortti"
+          element={<RequestStampCardStandAlone onOpenBooking={() => setIsBookingOpen(true)} />}
+        />
         <Route
           path="*"
-          element={<NotFoundPage onOpenBooking={() => setIsBookingOpen(true)} /pyyda_leimakortti>}
-        /pyyda_leimakortti>
-      </pyyda_leimakorttiRoutes>
+          element={<NotFoundPage onOpenBooking={() => setIsBookingOpen(true)} />}
+        />
+      </Routes>
 
-      {/pyyda_leimakortti* Global Modals */pyyda_leimakortti}
+      {/* Global Modals */}
       <EmbeddedBooking
         isOpen={isBookingOpen}
         onClose={handleCloseBooking}
-      /pyyda_leimakortti>
+      />
 
       <StampCardModal
         isOpen={isStampCardOpen}
         onClose={() => setIsStampCardOpen(false)}
         onOpenBooking={handleOpenBookingFromStampCard}
-      /pyyda_leimakortti>
-    </pyyda_leimakorttidiv>
+      />
+    </div>
   );
 }
 
@@ -114,12 +114,10 @@ function App() {
   return (
     <Router>
       <HolidayBarProvider>
-        <AppContent /pyyda_leimakortti>
-      </pyyda_leimakorttiHolidayBarProvider>
-    </pyyda_leimakorttiRouter>
+        <AppContent />
+      </HolidayBarProvider>
+    </Router>
   );
 }
 
 export default App;
-
-
