@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Ticket } from 'lucide-react';
@@ -59,7 +59,7 @@ function AppContent() {
       <HolidayBar />
 
       {/* Sticky Stamp Card Button - Hidden on Request Stamp Card page */}
-      {location.pathname !== '/pyydä_leimakortti' && (
+      {location.pathname !== '/pyyda_leimakortti' && (
         <button
           onClick={() => setIsStampCardOpen(true)}
           className={`fixed right-3 sm:right-4 z-50 bg-yellow-500 text-black px-4 py-3 sm:px-4 sm:py-2 rounded-lg shadow-lg hover:bg-yellow-400 transition-all duration-300 flex items-center space-x-2 font-bold text-sm sm:text-sm border border-yellow-600 ${
@@ -86,7 +86,7 @@ function AppContent() {
           element={<BookingStandAlone onOpenBooking={() => setIsBookingOpen(true)} />}
         />
         <Route
-          path="/pyydä_leimakortti"
+          path="/pyyda_leimakortti"
           element={<RequestStampCardStandAlone onOpenBooking={() => setIsBookingOpen(true)} />}
         />
         <Route
@@ -121,3 +121,4 @@ function App() {
 }
 
 export default App;
+
