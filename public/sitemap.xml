@@ -1,28 +1,29 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http:/pyyda_leimakortti/pyyda_leimakorttiwww.sitemaps.org/pyyda_leimakorttischemas/pyyda_leimakorttisitemap/pyyda_leimakortti0.9">
   <url>
-    <loc>https://k-parturi.fi/</loc>
-    <lastmod>2025-11-30</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
+    <loc>https:/pyyda_leimakortti/pyyda_leimakorttik-parturi.fi/pyyda_leimakortti</pyyda_leimakorttiloc>
+    <lastmod>2025-11-30</pyyda_leimakorttilastmod>
+    <changefreq>daily</pyyda_leimakorttichangefreq>
+    <priority>1.0</pyyda_leimakorttipriority>
+  </pyyda_leimakorttiurl>
   <url>
-    <loc>https://k-parturi.fi/varaukset</loc>
-    <lastmod>2025-11-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+    <loc>https:/pyyda_leimakortti/pyyda_leimakorttik-parturi.fi/pyyda_leimakorttivaraukset</pyyda_leimakorttiloc>
+    <lastmod>2025-11-30</pyyda_leimakorttilastmod>
+    <changefreq>weekly</pyyda_leimakorttichangefreq>
+    <priority>0.8</pyyda_leimakorttipriority>
+  </pyyda_leimakorttiurl>
   <url>
-    <loc>https://k-parturi.fi/pyyda-leimakortti</loc>
-    <lastmod>2025-11-30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+    <loc>https:/pyyda_leimakortti/pyyda_leimakorttik-parturi.fi/pyyda_leimakorttipyyda_leimakortti</pyyda_leimakorttiloc>
+    <lastmod>2025-11-30</pyyda_leimakorttilastmod>
+    <changefreq>weekly</pyyda_leimakorttichangefreq>
+    <priority>0.8</pyyda_leimakorttipriority>
+  </pyyda_leimakorttiurl>
   <url>
-    <loc>https://k-parturi.fi/qrcode</loc>
-    <lastmod>2025-11-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-</urlset>
+    <loc>https:/pyyda_leimakortti/pyyda_leimakorttik-parturi.fi/pyyda_leimakorttiqrcode</pyyda_leimakorttiloc>
+    <lastmod>2025-11-30</pyyda_leimakorttilastmod>
+    <changefreq>monthly</pyyda_leimakorttichangefreq>
+    <priority>0.5</pyyda_leimakorttipriority>
+  </pyyda_leimakorttiurl>
+</pyyda_leimakorttiurlset>
+
 
