@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Copy, Check, Gift, Users, LogOut, Mail, Phone, MapPin, Clock, UserPlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -523,7 +523,7 @@ const StampCardContent: React.FC<StampCardContentProps> = ({
                         Haluatko tietää lisää leimakortista ennen pyyntöä?
                       </p>
                       <a
-                        href="/pyydä_leimakortti"
+                        href="/pyyda-leimakortti"
                         className="block text-center text-blue-600 hover:text-blue-700 font-medium text-sm underline transition-colors"
                       >
                         Lue lisää leimakortista ja sen eduista →
