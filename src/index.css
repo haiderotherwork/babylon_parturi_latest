@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+}
+
+/* Prevent body scroll when modal is open */
+.body-no-scroll {
+  overflow: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure modal content is scrollable */
+.modal-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-in-out;
+  }
+}
