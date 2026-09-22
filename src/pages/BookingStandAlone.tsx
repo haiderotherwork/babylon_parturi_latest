@@ -51,7 +51,7 @@ const BookingStandAlone: React.FC = () => {
           id="reservationIframe31794"
           width="100%"
           frameBorder="0"
-          src="https://varaa.timma.fi/reservation/parturibabylons.a"
+          src="https://varaa.timma.fi/reservation/babylonparturi"
           style={{
             height: '100%',
             border: 'none',
