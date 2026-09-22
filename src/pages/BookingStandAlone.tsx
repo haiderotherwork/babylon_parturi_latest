@@ -17,7 +17,7 @@ const BookingStandAlone: React.FC = () => {
     script.async = true;
     script.onload = () => {
       if (window.iFrameResize) {
-        window.iFrameResize({ checkOrigin: false }, '#reservationIframe31794');
+        window.iFrameResize({ checkOrigin: false }, '#reservationIframe66499');
       }
     };
     document.body.appendChild(script);
@@ -48,7 +48,7 @@ const BookingStandAlone: React.FC = () => {
 
       <div className="flex-1 overflow-auto">
         <iframe
-          id="reservationIframe31794"
+          id="reservationIframe66499"
           width="100%"
           frameBorder="0"
           src="https://varaa.timma.fi/reservation/babylonparturi"
