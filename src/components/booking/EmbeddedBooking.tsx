@@ -91,7 +91,7 @@ const EmbeddedBooking: React.FC<EmbeddedBookingProps> = ({ isOpen, onClose }) =>
           id="reservationIframe31794"
           width="100%"
           frameBorder="0"
-          src="https://varaa.timma.fi/reservation/parturibabylons.a"
+          src="https://varaa.timma.fi/reservation/babylonparturi"
           onLoad={handleIframeLoad}
           style={{
             height: '100%',
